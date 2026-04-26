@@ -5,6 +5,11 @@ on:
     branches:
       - main
 
+# Evita despliegues simultáneos; cancela el run anterior si hay uno en curso
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
 # Permisos necesarios para desplegar en GitHub Pages
 permissions:
   contents: read
