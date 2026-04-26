@@ -1,0 +1,54 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  # ─────────────────────────────────────────────
+  # JOB 1 – Integración Continua (CI)
+  # ─────────────────────────────────────────────
+  ci:
+    name: Integración Continua
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Obtener el código fuente
+        uses: actions/checkout@v4
+
+      - name: Verificar existencia de home.html
+        run: |
+          if [ -f "home.html" ]; then
+            echo "✅ home.html encontrado."
+          else
+            echo "❌ ERROR: home.html no existe en el repositorio."
+            exit 1
+          fi
+
+      - name: Verificar existencia de styles.css
+        run: |
+          if [ -f "styles.css" ]; then
+            echo "✅ styles.css encontrado."
+          else
+            echo "❌ ERROR: styles.css no existe en el repositorio."
+            exit 1
+          fi
+
+  # ─────────────────────────────────────────────
+  # JOB 2 – Despliegue Continuo (CD)
+  # ─────────────────────────────────────────────
+  cd:
+    name: Despliegue Continuo
+    runs-on: ubuntu-latest
+    needs: ci
+
+    steps:
+      - name: Obtener el código fuente
+        uses: actions/checkout@v4
+
+      - name: Simulación de despliegue
+        run: |
+          echo "🚀 Iniciando preparación del despliegue..."
+          echo "📦 Compilando y empaquetando artefactos..."
+          echo "✅ Artefactos listos para el despliegue en el entorno de Staging."
