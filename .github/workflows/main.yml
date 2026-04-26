@@ -5,6 +5,12 @@ on:
     branches:
       - main
 
+# Permisos necesarios para desplegar en GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
   # ─────────────────────────────────────────────
   # JOB 1 – Integración Continua (CI)
@@ -42,13 +48,38 @@ jobs:
     name: Despliegue Continuo
     runs-on: ubuntu-latest
     needs: ci
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Obtener el código fuente
         uses: actions/checkout@v4
 
-      - name: Simulación de despliegue
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Compilar el proyecto
         run: |
           echo "🚀 Iniciando preparación del despliegue..."
           echo "📦 Compilando y empaquetando artefactos..."
+          npm run build
           echo "✅ Artefactos listos para el despliegue en el entorno de Staging."
+
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v4
+
+      - name: Subir artefactos a Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      - name: Desplegar en GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
